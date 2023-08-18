@@ -130,3 +130,81 @@ const p = new Printer();
 
 const button = document.querySelector("button")!;
 button.addEventListener("click", p.showMessage);
+
+// --- Params Validation Decorators
+
+interface ValidatorConfig {
+  [props: string]: {
+    [validateableProp: string]: string[]; // ['required', 'positive']
+  };
+}
+
+const registeredValidators: ValidatorConfig = {};
+
+function Require(target: any, name: string) {
+  registeredValidators[target.constructor.name /*Course*/] = {
+    ...registeredValidators[target.constructor.name /*Course*/],
+    [name /*title*/]: ["required"],
+  };
+}
+
+function PositiveNumber(target: any, name: string) {
+  registeredValidators[target.constructor.name /*Course*/] = {
+    ...registeredValidators[target.constructor.name /*Course*/],
+    [name /*price*/]: ["positive"],
+  };
+}
+
+console.log(registeredValidators);
+
+function validate(obj: any) {
+  const objValidatorConfig = registeredValidators[obj.constructor.name];
+  if (!objValidatorConfig) {
+    return true;
+  }
+
+  let isValid = true;
+  for (const prop in objValidatorConfig) {
+    for (const validator of objValidatorConfig[prop]) {
+      switch (validator) {
+        case "required":
+          isValid = isValid && !!obj[prop];
+          break;
+        case "positive":
+          isValid = isValid && obj[prop] > 0;
+          break;
+      }
+    }
+  }
+  return isValid;
+}
+
+class Course {
+  @Require
+  title: string;
+  @PositiveNumber
+  price: number;
+
+  constructor(t: string, p: number) {
+    this.title = t;
+    this.price = p;
+  }
+}
+
+const courseForm = document.querySelector("form")!;
+
+courseForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const titleEl = document.getElementById("title")! as HTMLInputElement;
+  const priceEl = document.getElementById("price")! as HTMLInputElement;
+  const title = titleEl.value;
+  const price = +priceEl.value;
+
+  const createdCourse = new Course(title, price);
+
+  if (!validate(createdCourse)) {
+    alert("Invalid input, please try again");
+    return;
+  }
+  console.log(createdCourse);
+});
