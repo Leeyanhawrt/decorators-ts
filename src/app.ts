@@ -6,8 +6,20 @@ function Logger(logString: string) {
   };
 }
 
+function WithTemplate(template: string, hookId: string) {
+  return function (constructor: any) {
+    const element = document.getElementById(hookId);
+    const p = new constructor();
+    if (element) {
+      element.innerHTML = template;
+      element.querySelector("h1")!.textContent = p.name;
+    }
+  };
+}
+
 // Decorators run when class is defined not when objects are instaniated. Factories are called with optional params while first class decorators are not
 @Logger("LOGGING - PERSON")
+@WithTemplate("<h1>Testing</h1>", "app")
 class Person {
   name = "Max";
 
