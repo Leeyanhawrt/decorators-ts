@@ -18,6 +18,7 @@ function WithTemplate(template: string, hookId: string) {
 }
 
 // Decorators run when class is defined not when objects are instaniated. Factories are called with optional params while first class decorators are not
+// Decorators functions are ran bottom up, WithTemplate runs before Logger will run, while decorator factories run top to bottom (Logger, WithTemplate)
 @Logger("LOGGING - PERSON")
 @WithTemplate("<h1>Testing</h1>", "app")
 class Person {
