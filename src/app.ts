@@ -7,13 +7,20 @@ function Logger(logString: string) {
 }
 
 function WithTemplate(template: string, hookId: string) {
-  return function (constructor: any) {
-    const element = document.getElementById(hookId);
-    const p = new constructor();
-    if (element) {
-      element.innerHTML = template;
-      element.querySelector("h1")!.textContent = p.name;
-    }
+  console.log("TEMPLATE FACTORY");
+  return function <T extends { new (...args: any[]): { name: string } }>(
+    originalConstructor: T
+  ) {
+    return class extends originalConstructor {
+      constructor(..._: any[]) {
+        super();
+        const element = document.getElementById(hookId);
+        if (element) {
+          element.innerHTML = template;
+          element.querySelector("h1")!.textContent = this.name;
+        }
+      }
+    };
   };
 }
 
