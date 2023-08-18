@@ -38,7 +38,7 @@ class Person {
 
 const pers = new Person();
 
-// console.log(pers);
+console.log(pers);
 
 // --- PROPERTY DECORATORS
 
@@ -103,3 +103,30 @@ const test = new Product("test", 5);
 // console.log(test.getPriceWithTax(5));
 test.price = 2;
 // console.log(test);
+
+function AutoBind(_: any, _2: string | Symbol, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  const adjDescriptor: PropertyDescriptor = {
+    configurable: true,
+    enumerable: true,
+    get() {
+      const boundFn = originalMethod.bind(this);
+      return boundFn;
+    },
+  };
+  return adjDescriptor;
+}
+
+class Printer {
+  message = "This works";
+
+  @AutoBind
+  showMessage() {
+    console.log(this.message);
+  }
+}
+
+const p = new Printer();
+
+const button = document.querySelector("button")!;
+button.addEventListener("click", p.showMessage);
